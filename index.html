@@ -15,7 +15,7 @@
             text-align: center;
         }
         h1 { color: #00B900; }
-        .info-panel, #game-area {
+        .info-panel, #game-area, #result-screen {
             background: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -59,6 +59,7 @@
             margin: 5px;
         }
         .btn:hover { background-color: #009900; }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
         #buzzer-btn {
             background-color: #ff4d4d;
             font-size: 1.5em;
@@ -91,22 +92,52 @@
             margin-bottom: 20px;
         }
         .combo { color: #ff8c00; font-size: 0.9em; }
+        #player-name-input {
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #00B900;
+            border-radius: 5px;
+            width: 60%;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .ranking-list {
+            text-align: left;
+            max-width: 400px;
+            margin: 0 auto;
+            font-size: 1.2em;
+            line-height: 1.8;
+            padding-left: 0;
+            list-style: none;
+        }
+        .ranking-list li {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .ranking-list li:nth-child(1) { font-weight: bold; color: gold; font-size: 1.4em; }
+        .ranking-list li:nth-child(2) { font-weight: bold; color: silver; font-size: 1.3em; }
+        .ranking-list li:nth-child(3) { font-weight: bold; color: #cd7f32; font-size: 1.2em; }
     </style>
 </head>
 <body>
 
     <h1>💬 トーク早押しクイズ</h1>
     
-    <div class="stats">
+    <div class="stats" id="game-stats" style="display: none;">
         <div>スコア: <span id="score">0</span> 点 <span id="combo-text" class="combo"></span></div>
         <div>問題: <span id="question-count">0</span> / 7</div>
     </div>
 
     <div class="info-panel" id="start-screen">
-        <h2>登場する人物</h2>
-        <div id="name-list"></div>
+        <h2>プレイヤー登録</h2>
+        <input type="text" id="player-name-input" placeholder="あなたの名前を入力してください" oninput="checkInput()">
         <br>
-        <button class="btn" onclick="startGame()">ゲーム開始</button>
+        <button class="btn" id="start-btn" onclick="startGame()" disabled>ゲーム開始</button>
+
+        <h3 style="margin-top: 30px;">登場する人物</h3>
+        <div id="name-list"></div>
     </div>
 
     <div id="game-area" style="display: none;">
@@ -122,13 +153,28 @@
         <button class="btn" id="next-btn" style="display: none; margin-top: 15px;" onclick="nextQuestion()">次の問題へ</button>
     </div>
 
+    <div id="result-screen" style="display: none;">
+        <h2>ゲーム終了！</h2>
+        <p style="font-size: 1.5em;">最終スコア: <strong id="final-score-text"></strong> 点</p>
+        
+        <h3 style="margin-top: 30px; color: #00B900;">🏆 スコアランキング 🏆</h3>
+        <ul class="ranking-list" id="leaderboard-list"></ul>
+
+        <br>
+        <button class="btn" style="margin-top: 20px;" onclick="location.reload()">タイトルへ戻る</button>
+    </div>
+
 <script>
     const quizData = [
-        { name: "ちろ", text: "きょうて数1の問題で呆れて言葉でないよ" },
-        { name: "ぶらっく", text: "具体的で現実的な地域医療への貢献ってなんスカ(ぴえん)" },
+        { name: "しろ", text: "きょうて数1の問題で呆れて言葉でないよ" },
+        { name: "いか", text: "具体的で現実的な地域医療への貢献ってなんスカ(ぴえん)" },
         { name: "いながきごろう", text: "保健学科なんでいかないの？" },
         { name: "ろいこ", text: "今日土田から聞いた話なんだと思って言ってた。" },
-        { name: "なんく", text: "教えただけだけど、それはバイアスがかかってる" }
+        { name: "なんく", text: "教えただけだけど、それはバイアスがかかってる" },
+        { name: "おむれつ", text: "これはオムレツの15文字以上の発言サンプルです。" },
+        { name: "フリカフィ", text: "これはフリカフィの15文字以上の発言サンプルです。" },
+        { name: "もくへん", text: "これはもくへんの15文字以上の発言サンプルです。" },
+        { name: "土田", text: "これは土田の15文字以上の発言サンプルになります。" }
     ];
 
     let uniqueNames = [...new Set(quizData.map(q => q.name))].sort();
@@ -141,6 +187,7 @@
     let combo = 0;
     let startTime = 0;
     let buzzerTime = 0;
+    let playerName = "";
     const MAX_QUESTIONS = 7;
 
     const nameListDiv = document.getElementById("name-list");
@@ -151,8 +198,15 @@
         nameListDiv.appendChild(span);
     });
 
+    function checkInput() {
+        const inputVal = document.getElementById("player-name-input").value.trim();
+        document.getElementById("start-btn").disabled = inputVal === "";
+    }
+
     function startGame() {
+        playerName = document.getElementById("player-name-input").value.trim();
         document.getElementById("start-screen").style.display = "none";
+        document.getElementById("game-stats").style.display = "flex";
         document.getElementById("game-area").style.display = "block";
         score = 0;
         qCount = 0;
@@ -163,8 +217,7 @@
 
     function nextQuestion() {
         if (qCount >= MAX_QUESTIONS) {
-            alert(`ゲーム終了！あなたの最終スコアは ${score} 点です！`);
-            location.reload();
+            endGame();
             return;
         }
         
@@ -251,6 +304,35 @@
 
         document.getElementById("question-text").textContent = questionText;
         document.getElementById("next-btn").style.display = "inline-block";
+    }
+
+    function endGame() {
+        document.getElementById("game-area").style.display = "none";
+        document.getElementById("game-stats").style.display = "none";
+        document.getElementById("result-screen").style.display = "block";
+        document.getElementById("final-score-text").textContent = score;
+
+        let highScores = JSON.parse(localStorage.getItem("quizHighScores")) || [];
+        
+        let existingIndex = highScores.findIndex(entry => entry.name === playerName);
+        if (existingIndex !== -1) {
+            if (score > highScores[existingIndex].score) {
+                highScores[existingIndex].score = score;
+            }
+        } else {
+            highScores.push({ name: playerName, score: score });
+        }
+
+        highScores.sort((a, b) => b.score - a.score);
+        localStorage.setItem("quizHighScores", JSON.stringify(highScores));
+
+        let leaderboardHtml = "";
+        highScores.slice(0, 10).forEach((entry, index) => {
+            let rank = index + 1;
+            let rankIcon = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
+            leaderboardHtml += `<li><span>${rankIcon} ${entry.name}</span> <span>${entry.score} 点</span></li>`;
+        });
+        document.getElementById("leaderboard-list").innerHTML = leaderboardHtml;
     }
 </script>
 </body>
