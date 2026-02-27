@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高IQ 早押し発言クイズ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f5f6f6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { color: #00B900; }
+        .info-panel, #game-area {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #name-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .name-badge {
+            background: #e1f5e1;
+            color: #007a00;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        #question-text {
+            font-size: 1.5em;
+            line-height: 1.6;
+            min-height: 100px;
+            text-align: left;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        .btn {
+            background-color: #00B900;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 5px;
+        }
+        .btn:hover { background-color: #009900; }
+        #buzzer-btn {
+            background-color: #ff4d4d;
+            font-size: 1.5em;
+            padding: 20px 40px;
+            border-radius: 50px;
+        }
+        #buzzer-btn:hover { background-color: #e60000; }
+        #choices-area {
+            display: none;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .choice-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .choice-btn:hover { background-color: #0056b3; }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .combo { color: #ff8c00; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <h1>💬 トーク早押しクイズ</h1>
+    
+    <div class="stats">
+        <div>スコア: <span id="score">0</span> 点 <span id="combo-text" class="combo"></span></div>
+        <div>問題: <span id="question-count">0</span> / 7</div>
+    </div>
+
+    <div class="info-panel" id="start-screen">
+        <h2>登場する人物</h2>
+        <div id="name-list"></div>
+        <br>
+        <button class="btn" onclick="startGame()">ゲーム開始</button>
+    </div>
+
+    <div id="game-area" style="display: none;">
+        <div id="question-text"></div>
+        
+        <div id="action-area">
+            <button id="buzzer-btn" onclick="hitBuzzer()">🔴 早押し！</button>
+        </div>
+
+        <div id="choices-area"></div>
+        
+        <div id="result-message" style="margin-top: 15px; font-weight: bold; font-size: 1.2em;"></div>
+        <button class="btn" id="next-btn" style="display: none; margin-top: 15px;" onclick="nextQuestion()">次の問題へ</button>
+    </div>
+
+<script>
+    const quizData = [
+        { name: "ちろ", text: "きょうて数1の問題で呆れて言葉でないよ" },
+        { name: "ぶらっく", text: "具体的で現実的な地域医療への貢献ってなんスカ(ぴえん)" },
+        { name: "いながきごろう", text: "保健学科なんでいかないの？" },
+        { name: "ろいこ", text: "今日土田から聞いた話なんだと思って言ってた。" },
+        { name: "なんく", text: "教えただけだけど、それはバイアスがかかってる" }
+    ];
+
+    let uniqueNames = [...new Set(quizData.map(q => q.name))].sort();
+    let currentQuestion = null;
+    let questionText = "";
+    let displayInterval = null;
+    let currentIndex = 0;
+    let score = 0;
+    let qCount = 0;
+    let combo = 0;
+    let startTime = 0;
+    let buzzerTime = 0;
+    const MAX_QUESTIONS = 7;
+
+    const nameListDiv = document.getElementById("name-list");
+    uniqueNames.forEach(name => {
+        const span = document.createElement("span");
+        span.className = "name-badge";
+        span.textContent = name;
+        nameListDiv.appendChild(span);
+    });
+
+    function startGame() {
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("game-area").style.display = "block";
+        score = 0;
+        qCount = 0;
+        combo = 0;
+        document.getElementById("score").textContent = score;
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (qCount >= MAX_QUESTIONS) {
+            alert(`ゲーム終了！あなたの最終スコアは ${score} 点です！`);
+            location.reload();
+            return;
+        }
+        
+        qCount++;
+        document.getElementById("question-count").textContent = qCount;
+        document.getElementById("result-message").textContent = "";
+        document.getElementById("next-btn").style.display = "none";
+        document.getElementById("choices-area").style.display = "none";
+        document.getElementById("buzzer-btn").style.display = "inline-block";
+        
+        currentQuestion = quizData[Math.floor(Math.random() * quizData.length)];
+        questionText = currentQuestion.text;
+        currentIndex = 0;
+        document.getElementById("question-text").textContent = "";
+
+        startTime = Date.now();
+        
+        displayInterval = setInterval(() => {
+            if (currentIndex < questionText.length) {
+                document.getElementById("question-text").textContent += questionText[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(displayInterval);
+                hitBuzzer(true);
+            }
+        }, 350);
+    }
+
+    function hitBuzzer(auto = false) {
+        clearInterval(displayInterval);
+        buzzerTime = Date.now();
+        document.getElementById("buzzer-btn").style.display = "none";
+        showChoices();
+    }
+
+    function showChoices() {
+        const choicesArea = document.getElementById("choices-area");
+        choicesArea.innerHTML = "";
+        choicesArea.style.display = "flex";
+
+        let choices = [...uniqueNames];
+        choices.sort(() => Math.random() - 0.5);
+
+        choices.forEach(name => {
+            const btn = document.createElement("button");
+            btn.className = "choice-btn";
+            btn.textContent = name;
+            btn.onclick = () => checkAnswer(name);
+            choicesArea.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedName) {
+        document.getElementById("choices-area").style.display = "none";
+        const resultMsg = document.getElementById("result-message");
+        
+        if (selectedName === currentQuestion.name) {
+            combo++;
+            let basePoint = 50;
+            
+            let hiddenRatio = 1.0 - (currentIndex / questionText.length);
+            let speedBonus = Math.floor(hiddenRatio * 100); 
+            
+            let comboBonus = (combo > 1) ? (combo * 10) : 0;
+
+            let points = basePoint + speedBonus + comboBonus;
+            score += points;
+
+            document.getElementById("score").textContent = score;
+            if (combo > 1) {
+                document.getElementById("combo-text").textContent = `(${combo}連チャン!)`;
+            }
+
+            resultMsg.innerHTML = `正解！🎉<br>基本点:+${basePoint} 早押しボーナス:+${speedBonus} 連続ボーナス:+${comboBonus} (合計:+${points}点)<br>正答: ${currentQuestion.name}`;
+            resultMsg.style.color = "green";
+        } else {
+            combo = 0;
+            score -= 100;
+            document.getElementById("score").textContent = score;
+            document.getElementById("combo-text").textContent = "";
+            resultMsg.textContent = `残念！❌ -100点... 正解は「${currentQuestion.name}」でした。`;
+            resultMsg.style.color = "red";
+        }
+
+        document.getElementById("question-text").textContent = questionText;
+        document.getElementById("next-btn").style.display = "inline-block";
+    }
+</script>
+</body>
+</html>
