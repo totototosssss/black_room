@@ -16,6 +16,7 @@
             --apple-red: #ff3b30;
             --apple-border: #d2d2d7;
             --apple-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --apple-gold: #d4af37;
         }
 
         * {
@@ -215,6 +216,14 @@
             box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
         }
 
+        .shop-container {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            border: 1px solid var(--apple-border);
+        }
+
         .ranking-list {
             text-align: left;
             list-style: none;
@@ -300,7 +309,7 @@
 </head>
 <body>
 
-    <h1>Quote Quiz</h1>
+    <h1>高IQ発話者選択クイズ</h1>
     
     <div class="stats" id="game-stats" style="display: none;">
         <div>Score: <span id="score">0</span> <span id="combo-text" class="combo"></span></div>
@@ -313,8 +322,28 @@
         </div>
         
         <div id="start-screen-content" style="display: none;">
-            <h2 style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600;">プレイヤー登録</h2>
+            
+            <div class="shop-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
+                    <span style="font-weight: 600; color: var(--apple-gold);">Total Points: <span id="display-total-points">0</span></span>
+                    <span style="font-weight: 600;">所持ブースター: <span id="display-booster-count">0</span></span>
+                </div>
+                <button class="choice-btn" style="width: 100%; margin-bottom: 16px; color: var(--apple-blue); border-color: var(--apple-blue);" onclick="buyBooster()">いながきブースター購入 (100,000 pt)</button>
+                
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <span style="font-size: 14px; color: var(--apple-secondary); font-weight: 600;">使用数:</span>
+                    <button class="choice-btn" style="min-height: 40px; padding: 0 16px;" onclick="changeBooster(-1)">-</button>
+                    <span id="display-use-booster" style="font-weight: 700; width: 24px; text-align: center; font-size: 18px;">0</span>
+                    <button class="choice-btn" style="min-height: 40px; padding: 0 16px;" onclick="changeBooster(1)">+</button>
+                </div>
+                <div style="text-align: center; font-size: 12px; color: var(--apple-secondary); margin-top: 8px;">
+                    ※1つ使用につき「いながきごろう」出現率+5% / 獲得スコア-5%
+                </div>
+            </div>
+
+            <h2 style="text-align: center; margin-bottom: 16px; font-size: 20px; font-weight: 600;">プレイヤー登録</h2>
             <input type="text" id="player-name-input" placeholder="あなたの名前" oninput="checkInput()">
+            
             <div style="text-align: center;">
                 <button class="btn" id="start-btn" onclick="startGame()" disabled>ゲームを開始</button>
             </div>
@@ -342,7 +371,8 @@
     <div class="card" id="result-screen" style="display: none; text-align: center;">
         <h2 style="font-size: 24px; margin-bottom: 12px;">Game Over</h2>
         <p style="font-size: 15px; color: var(--apple-secondary);">Final Score</p>
-        <p style="font-size: 44px; font-weight: 700; color: var(--apple-text); margin-bottom: 32px;" id="final-score-text"></p>
+        <p style="font-size: 44px; font-weight: 700; color: var(--apple-text); margin-bottom: 8px;" id="final-score-text"></p>
+        <p style="font-size: 14px; color: var(--apple-gold); font-weight: 600; margin-bottom: 32px;">獲得ポイント: +<span id="earned-points-text">0</span> pt</p>
         
         <h3 style="font-size: 16px; color: var(--apple-secondary); margin-bottom: 12px; border-bottom: 1px solid var(--apple-border); padding-bottom: 8px;">Leaderboard</h3>
         <ul class="ranking-list" id="leaderboard-list"></ul>
@@ -371,6 +401,11 @@
     const MAX_QUESTIONS = 7;
     const REVEAL_SPEED = 200;
 
+    // ショップ・ポイントシステム
+    let totalPoints = parseInt(localStorage.getItem('appleQuizTotalPoints')) || 0;
+    let boosterCount = parseInt(localStorage.getItem('appleQuizBoosterCount')) || 0;
+    let boostersUsed = 0;
+
     window.onload = async function() {
         try {
             const response = await fetch('quiz_data.json');
@@ -385,6 +420,7 @@
                 nameListDiv.appendChild(span);
             });
 
+            updateShopUI();
             document.getElementById("loading-text").style.display = "none";
             document.getElementById("start-screen-content").style.display = "block";
         } catch (error) {
@@ -393,6 +429,33 @@
         }
     };
 
+    function updateShopUI() {
+        document.getElementById("display-total-points").textContent = totalPoints.toLocaleString();
+        document.getElementById("display-booster-count").textContent = boosterCount;
+        document.getElementById("display-use-booster").textContent = boostersUsed;
+    }
+
+    function buyBooster() {
+        if (totalPoints >= 100000) {
+            totalPoints -= 100000;
+            boosterCount++;
+            localStorage.setItem('appleQuizTotalPoints', totalPoints);
+            localStorage.setItem('appleQuizBoosterCount', boosterCount);
+            updateShopUI();
+            alert("いながきブースターを購入しました！");
+        } else {
+            alert("ポイントが足りません。(100,000 pt必要)");
+        }
+    }
+
+    function changeBooster(delta) {
+        let newUsed = boostersUsed + delta;
+        if (newUsed >= 0 && newUsed <= boosterCount) {
+            boostersUsed = newUsed;
+            updateShopUI();
+        }
+    }
+
     function checkInput() {
         const inputVal = document.getElementById("player-name-input").value.trim();
         document.getElementById("start-btn").disabled = inputVal === "";
@@ -400,6 +463,11 @@
 
     function startGame() {
         playerName = document.getElementById("player-name-input").value.trim();
+        
+        // ブースター消費
+        boosterCount -= boostersUsed;
+        localStorage.setItem('appleQuizBoosterCount', boosterCount);
+
         document.getElementById("start-screen").style.display = "none";
         document.getElementById("game-stats").style.display = "flex";
         document.getElementById("game-area").style.display = "block";
@@ -411,6 +479,15 @@
     }
 
     function getNextQuestion() {
+        // いながきブースターの判定
+        let boostChance = boostersUsed * 0.05;
+        let inagakiQuestions = quizData.filter(q => q.name === "いながきごろう");
+        
+        if (Math.random() < boostChance && inagakiQuestions.length > 0) {
+            return inagakiQuestions[Math.floor(Math.random() * inagakiQuestions.length)];
+        }
+
+        // 通常のランダム抽選
         if (shuffledQuizData.length === 0) {
             shuffledQuizData = [...quizData];
             for (let i = shuffledQuizData.length - 1; i > 0; i--) {
@@ -520,6 +597,10 @@
         
         const elapsedMs = buzzerTime - startTime;
 
+        // ブースターによるスコアデバフ
+        const scoreMultiplier = Math.max(0, 1 - (boostersUsed * 0.05));
+        const penaltyMultiplier = 1 + (boostersUsed * 0.05); // ペナルティはより重くなる
+
         if (selectedName === currentQuestion.name) {
             combo++;
             createParticles();
@@ -528,7 +609,9 @@
             const speedBonus = Math.max(0, 1500 - Math.floor(elapsedMs * 0.3));
             const comboBonus = (combo > 1) ? (combo * 100) : 0;
             
-            const points = basePoint + speedBonus + comboBonus;
+            let points = basePoint + speedBonus + comboBonus;
+            points = Math.max(1, Math.floor(points * scoreMultiplier)); // デバフ適用
+
             score += points;
 
             document.getElementById("score").textContent = score;
@@ -537,12 +620,16 @@
             }
 
             resultMsg.className = "correct-text";
-            resultMsg.innerHTML = `正解！ +${points}<div class="score-detail">基本点: ${basePoint} | 早押し: ${speedBonus} | コンボ: ${comboBonus}<br>正答: ${currentQuestion.name}</div>`;
+            let debuffText = boostersUsed > 0 ? ` (デバフ ${(scoreMultiplier * 100).toFixed(0)}%)` : "";
+            resultMsg.innerHTML = `正解！ +${points}${debuffText}<div class="score-detail">基本点: ${basePoint} | 早押し: ${speedBonus} | コンボ: ${comboBonus}<br>正答: ${currentQuestion.name}</div>`;
         } else {
             combo = 0;
             const basePenalty = 150;
             const earlyGuessPenalty = Math.max(0, 350 - Math.floor(elapsedMs * 0.1));
-            const totalPenalty = basePenalty + earlyGuessPenalty;
+            
+            let totalPenalty = basePenalty + earlyGuessPenalty;
+            totalPenalty = Math.floor(totalPenalty * penaltyMultiplier); // デバフ適用
+
             score -= totalPenalty;
             
             document.getElementById("game-area").classList.add("shake");
@@ -550,7 +637,8 @@
             document.getElementById("combo-text").textContent = "";
             
             resultMsg.className = "wrong-text";
-            resultMsg.innerHTML = `不正解... -${totalPenalty}<div class="score-detail">基本減点: -${basePenalty} | 勘押しペナ: -${earlyGuessPenalty}<br>正答: ${currentQuestion.name}</div>`;
+            let debuffText = boostersUsed > 0 ? ` (デバフ ${(penaltyMultiplier * 100).toFixed(0)}%)` : "";
+            resultMsg.innerHTML = `不正解... -${totalPenalty}${debuffText}<div class="score-detail">基本減点: -${basePenalty} | 勘押しペナ: -${earlyGuessPenalty}<br>正答: ${currentQuestion.name}</div>`;
         }
 
         document.getElementById("question-text").textContent = questionText;
@@ -562,6 +650,12 @@
         document.getElementById("game-stats").style.display = "none";
         document.getElementById("result-screen").style.display = "block";
         document.getElementById("final-score-text").textContent = score;
+
+        // ポイント加算（絶対値）
+        let earnedPoints = Math.abs(score);
+        totalPoints += earnedPoints;
+        localStorage.setItem('appleQuizTotalPoints', totalPoints);
+        document.getElementById("earned-points-text").textContent = earnedPoints.toLocaleString();
 
         let highScores = JSON.parse(localStorage.getItem("appleQuizScores")) || [];
         
