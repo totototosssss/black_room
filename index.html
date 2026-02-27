@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quote Quiz</title>
     <style>
         :root {
             --apple-bg: #f5f5f7;
-            --apple-card: rgba(255, 255, 255, 0.8);
+            --apple-card: rgba(255, 255, 255, 0.85);
             --apple-text: #1d1d1f;
             --apple-secondary: #86868b;
             --apple-blue: #0071e3;
@@ -23,6 +23,7 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -32,15 +33,15 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px 16px;
             overflow-x: hidden;
         }
 
         h1 {
             font-weight: 600;
-            font-size: 32px;
+            font-size: 28px;
             letter-spacing: -0.01em;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             color: var(--apple-text);
         }
 
@@ -48,14 +49,14 @@
             background: var(--apple-card);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 32px;
+            border-radius: 24px;
+            padding: 24px;
             width: 100%;
             max-width: 600px;
             box-shadow: var(--apple-shadow);
             margin-bottom: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
         }
 
         #name-list {
@@ -71,37 +72,38 @@
             color: var(--apple-blue);
             padding: 6px 14px;
             border-radius: 999px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
-            letter-spacing: 0.02em;
         }
 
         #question-text {
-            font-size: 24px;
-            line-height: 1.4;
+            font-size: 22px;
+            line-height: 1.5;
             font-weight: 500;
-            min-height: 120px;
+            min-height: 140px;
             text-align: left;
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 16px;
             margin-bottom: 24px;
             white-space: pre-wrap;
             border: 1px solid var(--apple-border);
-            letter-spacing: -0.02em;
+            word-break: break-word;
         }
 
         .btn {
             background-color: var(--apple-blue);
             color: white;
             border: none;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: 500;
+            padding: 16px 32px;
+            font-size: 17px;
+            font-weight: 600;
             border-radius: 999px;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2);
+            width: 100%;
+            max-width: 300px;
         }
 
         .btn:hover:not(:disabled) {
@@ -110,7 +112,7 @@
         }
 
         .btn:active:not(:disabled) {
-            transform: scale(0.98);
+            transform: scale(0.96);
         }
 
         .btn:disabled {
@@ -122,17 +124,14 @@
 
         #buzzer-btn {
             background-color: var(--apple-red);
-            font-size: 28px;
-            font-weight: 600;
-            padding: 24px 64px;
+            font-size: 24px;
+            font-weight: 700;
+            padding: 24px;
             border-radius: 999px;
             box-shadow: 0 8px 24px rgba(255, 59, 48, 0.3);
+            width: 100%;
+            max-width: 300px;
             animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-        }
-
-        #buzzer-btn:hover {
-            background-color: #ff2419;
-            transform: scale(1.05);
         }
 
         #buzzer-btn:active {
@@ -141,29 +140,34 @@
 
         #choices-area {
             display: none;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .choice-btn {
             background-color: white;
             color: var(--apple-text);
             border: 1px solid var(--apple-border);
-            padding: 12px 20px;
+            padding: 16px 8px;
             font-size: 15px;
-            font-weight: 500;
-            border-radius: 12px;
+            font-weight: 600;
+            border-radius: 14px;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: all 0.1s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 60px;
+            word-break: keep-all;
         }
 
-        .choice-btn:hover {
-            border-color: var(--apple-blue);
-            color: var(--apple-blue);
-            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.1);
+        .choice-btn:active {
+            background-color: var(--apple-bg);
+            transform: scale(0.95);
         }
 
         .stats {
@@ -172,41 +176,43 @@
             align-items: center;
             width: 100%;
             max-width: 600px;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             color: var(--apple-secondary);
+            padding: 0 8px;
         }
 
         #score {
             color: var(--apple-text);
-            font-size: 24px;
+            font-size: 22px;
         }
 
         .combo {
             color: #ff9500;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             margin-left: 8px;
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         #player-name-input {
             width: 100%;
-            padding: 16px;
-            font-size: 17px;
+            padding: 18px;
+            font-size: 18px;
             border: 1px solid var(--apple-border);
-            border-radius: 14px;
+            border-radius: 16px;
             margin-bottom: 24px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.8);
+            background: white;
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
         }
 
         #player-name-input:focus {
             border-color: var(--apple-blue);
-            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
         }
 
         .ranking-list {
@@ -216,80 +222,77 @@
         }
 
         .ranking-list li {
-            padding: 16px;
+            padding: 14px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--apple-border);
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 500;
         }
 
-        .ranking-list li:last-child {
-            border-bottom: none;
-        }
-
-        .ranking-list li span:last-child {
-            font-feature-settings: "tnum";
-            font-variant-numeric: tabular-nums;
-        }
-
-        .rank-1 { color: #d4af37; font-weight: 700; font-size: 19px; }
-        .rank-2 { color: #8e8e93; font-weight: 700; font-size: 18px; }
+        .rank-1 { color: #d4af37; font-weight: 700; font-size: 18px; }
+        .rank-2 { color: #8e8e93; font-weight: 700; font-size: 17px; }
         .rank-3 { color: #b08d57; font-weight: 600; }
 
         #result-message {
-            margin-top: 24px;
-            font-weight: 600;
-            font-size: 17px;
-            line-height: 1.5;
+            margin-top: 20px;
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.4;
             text-align: center;
-            min-height: 60px;
+            min-height: 70px;
         }
 
-        .correct-text { color: var(--apple-green); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .correct-text { color: var(--apple-green); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .wrong-text { color: var(--apple-red); }
 
         .score-detail {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--apple-secondary);
-            font-weight: 400;
-            margin-top: 4px;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 20px 16px; border-radius: 20px; }
+            #question-text { font-size: 18px; min-height: 120px; padding: 16px; }
+            .choice-btn { font-size: 13px; padding: 12px 4px; min-height: 54px; }
+            #choices-area { gap: 8px; }
+            h1 { font-size: 24px; }
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes popIn {
             0% { opacity: 0; transform: scale(0.8); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.08); }
             100% { opacity: 1; transform: scale(1); }
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 59, 48, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.3); }
+            70% { box-shadow: 0 0 0 16px rgba(255, 59, 48, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
         }
 
-        .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
         @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
         .particle {
             position: fixed;
             pointer-events: none;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             z-index: 1000;
         }
@@ -297,7 +300,7 @@
 </head>
 <body>
 
-    <h1>Quote Quiz</h1>
+    <h1>高IQ発話者選択クイズ</h1>
     
     <div class="stats" id="game-stats" style="display: none;">
         <div>Score: <span id="score">0</span> <span id="combo-text" class="combo"></span></div>
@@ -310,13 +313,13 @@
         </div>
         
         <div id="start-screen-content" style="display: none;">
-            <h2 style="text-align: center; margin-bottom: 24px; font-weight: 600;">プレイヤー登録</h2>
+            <h2 style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600;">プレイヤー登録</h2>
             <input type="text" id="player-name-input" placeholder="あなたの名前" oninput="checkInput()">
             <div style="text-align: center;">
-                <button class="btn" id="start-btn" onclick="startGame()" disabled>ゲームを開始する</button>
+                <button class="btn" id="start-btn" onclick="startGame()" disabled>ゲームを開始</button>
             </div>
 
-            <h3 style="margin-top: 40px; font-size: 15px; color: var(--apple-secondary); text-align: center;">登場人物</h3>
+            <h3 style="margin-top: 32px; font-size: 14px; color: var(--apple-secondary); text-align: center;">解答候補</h3>
             <div id="name-list"></div>
         </div>
     </div>
@@ -324,32 +327,35 @@
     <div class="card" id="game-area" style="display: none;">
         <div id="question-text"></div>
         
-        <div id="action-area" style="text-align: center; padding: 20px 0;">
-            <button id="buzzer-btn" onclick="hitBuzzer()">Tap to Answer</button>
+        <div id="action-area" style="text-align: center; padding: 10px 0;">
+            <button id="buzzer-btn" onclick="hitBuzzer()">タップして解答</button>
         </div>
 
         <div id="choices-area"></div>
         
         <div id="result-message"></div>
         <div style="text-align: center;">
-            <button class="btn" id="next-btn" style="display: none; margin-top: 24px;" onclick="nextQuestion()">次へ進む</button>
+            <button class="btn" id="next-btn" style="display: none; margin-top: 20px;" onclick="nextQuestion()">次の問題へ</button>
         </div>
     </div>
 
     <div class="card" id="result-screen" style="display: none; text-align: center;">
-        <h2 style="font-size: 28px; margin-bottom: 16px;">Game Over</h2>
-        <p style="font-size: 17px; color: var(--apple-secondary);">Final Score</p>
-        <p style="font-size: 48px; font-weight: 700; color: var(--apple-text); margin-bottom: 40px;" id="final-score-text"></p>
+        <h2 style="font-size: 24px; margin-bottom: 12px;">Game Over</h2>
+        <p style="font-size: 15px; color: var(--apple-secondary);">Final Score</p>
+        <p style="font-size: 44px; font-weight: 700; color: var(--apple-text); margin-bottom: 32px;" id="final-score-text"></p>
         
-        <h3 style="font-size: 17px; color: var(--apple-secondary); margin-bottom: 16px;">Leaderboard</h3>
+        <h3 style="font-size: 16px; color: var(--apple-secondary); margin-bottom: 12px; border-bottom: 1px solid var(--apple-border); padding-bottom: 8px;">Leaderboard</h3>
         <ul class="ranking-list" id="leaderboard-list"></ul>
 
-        <button class="btn" style="margin-top: 40px;" onclick="location.reload()">タイトルへ戻る</button>
+        <button class="btn" style="margin-top: 32px;" onclick="location.reload()">タイトルへ戻る</button>
     </div>
 
 <script>
     let quizData = [];
-    let uniqueNames = [];
+    const fixedChoices = [
+        "しろ", "いながきごろう", "いか", "ろいこ", 
+        "なんく", "おむれつ", "フリカフィ", "もくへん", "土田"
+    ];
     let currentQuestion = null;
     let questionText = "";
     let displayInterval = null;
@@ -358,19 +364,18 @@
     let qCount = 0;
     let combo = 0;
     let playerName = "";
+    let buttonsDisabled = false;
     const MAX_QUESTIONS = 7;
-    const REVEAL_SPEED = 350;
+    const REVEAL_SPEED = 200;
 
     window.onload = async function() {
         try {
             const response = await fetch('quiz_data.json');
-            if (!response.ok) throw new Error("Network response was not ok");
+            if (!response.ok) throw new Error("Network error");
             quizData = await response.json();
             
-            uniqueNames = [...new Set(quizData.map(q => q.name))].sort();
-            
             const nameListDiv = document.getElementById("name-list");
-            uniqueNames.forEach(name => {
+            fixedChoices.forEach(name => {
                 const span = document.createElement("span");
                 span.className = "name-badge";
                 span.textContent = name;
@@ -380,7 +385,7 @@
             document.getElementById("loading-text").style.display = "none";
             document.getElementById("start-screen-content").style.display = "block";
         } catch (error) {
-            document.getElementById("loading-text").innerHTML = "quiz_data.jsonの読み込みに失敗しました。<br>ローカルサーバー(Live Serverなど)で起動しているか確認してください。";
+            document.getElementById("loading-text").innerHTML = "quiz_data.jsonの読み込みに失敗しました。<br>サーバー環境で実行してください。";
             document.getElementById("loading-text").style.color = "var(--apple-red)";
         }
     };
@@ -409,6 +414,7 @@
         }
         
         qCount++;
+        buttonsDisabled = false;
         document.getElementById("question-count").textContent = qCount;
         document.getElementById("result-message").innerHTML = "";
         document.getElementById("result-message").className = "";
@@ -417,7 +423,6 @@
         
         const actionArea = document.getElementById("action-area");
         actionArea.style.display = "block";
-        actionArea.style.height = "auto";
         document.getElementById("buzzer-btn").style.display = "inline-block";
         
         document.getElementById("game-area").classList.remove("shake");
@@ -447,23 +452,20 @@
     function showChoices() {
         const choicesArea = document.getElementById("choices-area");
         choicesArea.innerHTML = "";
-        choicesArea.style.display = "flex";
+        choicesArea.style.display = "grid";
 
-        let choices = [...uniqueNames];
-        choices.sort(() => Math.random() - 0.5);
-
-        choices.forEach(name => {
+        fixedChoices.forEach(name => {
             const btn = document.createElement("button");
             btn.className = "choice-btn";
             btn.textContent = name;
-            btn.onclick = () => checkAnswer(name);
+            btn.onclick = () => checkAnswer(name, btn);
             choicesArea.appendChild(btn);
         });
     }
 
     function createParticles() {
         const colors = ['#34c759', '#0071e3', '#ff9500', '#ff2d55', '#5856d6'];
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 30; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             document.body.appendChild(particle);
@@ -474,15 +476,15 @@
             const startX = window.innerWidth / 2;
             const startY = window.innerHeight / 2;
             const angle = Math.random() * Math.PI * 2;
-            const velocity = 5 + Math.random() * 15;
-            const lifeTime = 600 + Math.random() * 400;
+            const velocity = 8 + Math.random() * 12;
+            const lifeTime = 500 + Math.random() * 300;
 
             particle.style.left = startX + 'px';
             particle.style.top = startY + 'px';
 
             const animation = particle.animate([
                 { transform: `translate(0, 0) scale(1)`, opacity: 1 },
-                { transform: `translate(${Math.cos(angle) * velocity * 20}px, ${Math.sin(angle) * velocity * 20 + 100}px) scale(0)`, opacity: 0 }
+                { transform: `translate(${Math.cos(angle) * velocity * 15}px, ${Math.sin(angle) * velocity * 15 + 80}px) scale(0)`, opacity: 0 }
             ], {
                 duration: lifeTime,
                 easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
@@ -492,7 +494,10 @@
         }
     }
 
-    function checkAnswer(selectedName) {
+    function checkAnswer(selectedName, btnElement) {
+        if (buttonsDisabled) return;
+        buttonsDisabled = true;
+        
         document.getElementById("choices-area").style.display = "none";
         const resultMsg = document.getElementById("result-message");
         
@@ -503,9 +508,9 @@
             combo++;
             createParticles();
             
-            const basePoint = 100;
-            const speedBonus = Math.floor(timeRatio * 1000);
-            const comboBonus = (combo > 1) ? (combo * 150) : 0;
+            const basePoint = 200;
+            const speedBonus = Math.floor(timeRatio * 1500);
+            const comboBonus = (combo > 1) ? (combo * 200) : 0;
             
             const points = basePoint + speedBonus + comboBonus;
             score += points;
@@ -516,11 +521,11 @@
             }
 
             resultMsg.className = "correct-text";
-            resultMsg.innerHTML = `Correct! +${points}<div class="score-detail">Base: ${basePoint} | Speed: ${speedBonus} | Combo: ${comboBonus}<br>Ans: ${currentQuestion.name}</div>`;
+            resultMsg.innerHTML = `正解！ +${points}<div class="score-detail">基本点: ${basePoint} | 早押し: ${speedBonus} | コンボ: ${comboBonus}<br>正答: ${currentQuestion.name}</div>`;
         } else {
             combo = 0;
             const basePenalty = 500;
-            const earlyGuessPenalty = Math.floor(timeRatio * 1500);
+            const earlyGuessPenalty = Math.floor(timeRatio * 2000);
             const totalPenalty = basePenalty + earlyGuessPenalty;
             score -= totalPenalty;
             
@@ -529,7 +534,7 @@
             document.getElementById("combo-text").textContent = "";
             
             resultMsg.className = "wrong-text";
-            resultMsg.innerHTML = `Wrong! -${totalPenalty}<div class="score-detail">Base: -${basePenalty} | Early Penalty: -${earlyGuessPenalty}<br>Ans: ${currentQuestion.name}</div>`;
+            resultMsg.innerHTML = `不正解... -${totalPenalty}<div class="score-detail">基本減点: -${basePenalty} | 勘押しペナルティ: -${earlyGuessPenalty}<br>正答: ${currentQuestion.name}</div>`;
         }
 
         document.getElementById("question-text").textContent = questionText;
