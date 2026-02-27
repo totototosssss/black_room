@@ -3,181 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高IQ 早押し発言クイズ</title>
+    <title>Quote Quiz</title>
     <style>
+        :root {
+            --apple-bg: #f5f5f7;
+            --apple-card: rgba(255, 255, 255, 0.8);
+            --apple-text: #1d1d1f;
+            --apple-secondary: #86868b;
+            --apple-blue: #0071e3;
+            --apple-blue-hover: #0077ED;
+            --apple-green: #34c759;
+            --apple-red: #ff3b30;
+            --apple-border: #d2d2d7;
+            --apple-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
         body {
-            font-family: sans-serif;
-            background-color: #f5f6f6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
+            background-color: var(--apple-bg);
+            color: var(--apple-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
         }
-        h1 { color: #00B900; }
-        .info-panel, #game-area, #result-screen {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        h1 {
+            font-weight: 600;
+            font-size: 32px;
+            letter-spacing: -0.01em;
+            margin-bottom: 24px;
+            color: var(--apple-text);
         }
+
+        .card {
+            background: var(--apple-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--apple-shadow);
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
         #name-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
-            margin-top: 10px;
+            margin-top: 16px;
         }
+
         .name-badge {
-            background: #e1f5e1;
-            color: #007a00;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9em;
+            background: rgba(0, 113, 227, 0.1);
+            color: var(--apple-blue);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
         }
+
         #question-text {
-            font-size: 1.5em;
-            line-height: 1.6;
-            min-height: 100px;
+            font-size: 24px;
+            line-height: 1.4;
+            font-weight: 500;
+            min-height: 120px;
             text-align: left;
-            padding: 20px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            margin-bottom: 24px;
             white-space: pre-wrap;
+            border: 1px solid var(--apple-border);
+            letter-spacing: -0.02em;
         }
+
         .btn {
-            background-color: #00B900;
+            background-color: var(--apple-blue);
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 1.1em;
-            border-radius: 5px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 999px;
             cursor: pointer;
-            transition: 0.2s;
-            margin: 5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
         }
-        .btn:hover { background-color: #009900; }
-        .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .btn:hover:not(:disabled) {
+            background-color: var(--apple-blue-hover);
+            transform: scale(1.02);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background-color: var(--apple-secondary);
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         #buzzer-btn {
-            background-color: #ff4d4d;
-            font-size: 1.5em;
-            padding: 20px 40px;
-            border-radius: 50px;
+            background-color: var(--apple-red);
+            font-size: 28px;
+            font-weight: 600;
+            padding: 24px 64px;
+            border-radius: 999px;
+            box-shadow: 0 8px 24px rgba(255, 59, 48, 0.3);
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
         }
-        #buzzer-btn:hover { background-color: #e60000; }
+
+        #buzzer-btn:hover {
+            background-color: #ff2419;
+            transform: scale(1.05);
+        }
+
+        #buzzer-btn:active {
+            transform: scale(0.95);
+        }
+
         #choices-area {
             display: none;
-            margin-top: 20px;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .choice-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 1em;
-            border-radius: 5px;
+            background-color: white;
+            color: var(--apple-text);
+            border: 1px solid var(--apple-border);
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 12px;
             cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-        .choice-btn:hover { background-color: #0056b3; }
+
+        .choice-btn:hover {
+            border-color: var(--apple-blue);
+            color: var(--apple-blue);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.1);
+        }
+
         .stats {
             display: flex;
-            justify-content: space-around;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--apple-secondary);
         }
-        .combo { color: #ff8c00; font-size: 0.9em; }
+
+        #score {
+            color: var(--apple-text);
+            font-size: 24px;
+        }
+
+        .combo {
+            color: #ff9500;
+            font-size: 15px;
+            font-weight: 600;
+            margin-left: 8px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         #player-name-input {
-            padding: 10px;
-            font-size: 1.2em;
-            border: 2px solid #00B900;
-            border-radius: 5px;
-            width: 60%;
-            margin-bottom: 15px;
+            width: 100%;
+            padding: 16px;
+            font-size: 17px;
+            border: 1px solid var(--apple-border);
+            border-radius: 14px;
+            margin-bottom: 24px;
             text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            outline: none;
+            transition: all 0.3s ease;
         }
+
+        #player-name-input:focus {
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
         .ranking-list {
             text-align: left;
-            max-width: 400px;
-            margin: 0 auto;
-            font-size: 1.2em;
-            line-height: 1.8;
-            padding-left: 0;
             list-style: none;
+            margin-top: 16px;
         }
+
         .ranking-list li {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--apple-border);
+            font-size: 17px;
+            font-weight: 500;
         }
-        .ranking-list li:nth-child(1) { font-weight: bold; color: gold; font-size: 1.4em; }
-        .ranking-list li:nth-child(2) { font-weight: bold; color: silver; font-size: 1.3em; }
-        .ranking-list li:nth-child(3) { font-weight: bold; color: #cd7f32; font-size: 1.2em; }
+
+        .ranking-list li:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-list li span:last-child {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        .rank-1 { color: #d4af37; font-weight: 700; font-size: 19px; }
+        .rank-2 { color: #8e8e93; font-weight: 700; font-size: 18px; }
+        .rank-3 { color: #b08d57; font-weight: 600; }
+
+        #result-message {
+            margin-top: 24px;
+            font-weight: 600;
+            font-size: 17px;
+            line-height: 1.5;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .correct-text { color: var(--apple-green); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .wrong-text { color: var(--apple-red); }
+
+        .score-detail {
+            font-size: 14px;
+            color: var(--apple-secondary);
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 59, 48, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
-    <h1>💬 トーク早押しクイズ</h1>
+    <h1>Quote Quiz</h1>
     
     <div class="stats" id="game-stats" style="display: none;">
-        <div>スコア: <span id="score">0</span> 点 <span id="combo-text" class="combo"></span></div>
-        <div>問題: <span id="question-count">0</span> / 7</div>
+        <div>Score: <span id="score">0</span> <span id="combo-text" class="combo"></span></div>
+        <div><span id="question-count">0</span> / 7</div>
     </div>
 
-    <div class="info-panel" id="start-screen">
-        <h2>プレイヤー登録</h2>
-        <input type="text" id="player-name-input" placeholder="あなたの名前を入力してください" oninput="checkInput()">
-        <br>
-        <button class="btn" id="start-btn" onclick="startGame()" disabled>ゲーム開始</button>
+    <div class="card" id="start-screen">
+        <div id="loading-text" style="text-align: center; color: var(--apple-secondary); font-weight: 500; padding: 40px 0;">
+            quiz_data.json を読み込み中...
+        </div>
+        
+        <div id="start-screen-content" style="display: none;">
+            <h2 style="text-align: center; margin-bottom: 24px; font-weight: 600;">プレイヤー登録</h2>
+            <input type="text" id="player-name-input" placeholder="あなたの名前" oninput="checkInput()">
+            <div style="text-align: center;">
+                <button class="btn" id="start-btn" onclick="startGame()" disabled>ゲームを開始する</button>
+            </div>
 
-        <h3 style="margin-top: 30px;">登場する人物</h3>
-        <div id="name-list"></div>
+            <h3 style="margin-top: 40px; font-size: 15px; color: var(--apple-secondary); text-align: center;">登場人物</h3>
+            <div id="name-list"></div>
+        </div>
     </div>
 
-    <div id="game-area" style="display: none;">
+    <div class="card" id="game-area" style="display: none;">
         <div id="question-text"></div>
         
-        <div id="action-area">
-            <button id="buzzer-btn" onclick="hitBuzzer()">🔴 早押し！</button>
+        <div id="action-area" style="text-align: center; padding: 20px 0;">
+            <button id="buzzer-btn" onclick="hitBuzzer()">Tap to Answer</button>
         </div>
 
         <div id="choices-area"></div>
         
-        <div id="result-message" style="margin-top: 15px; font-weight: bold; font-size: 1.2em;"></div>
-        <button class="btn" id="next-btn" style="display: none; margin-top: 15px;" onclick="nextQuestion()">次の問題へ</button>
+        <div id="result-message"></div>
+        <div style="text-align: center;">
+            <button class="btn" id="next-btn" style="display: none; margin-top: 24px;" onclick="nextQuestion()">次へ進む</button>
+        </div>
     </div>
 
-    <div id="result-screen" style="display: none;">
-        <h2>ゲーム終了！</h2>
-        <p style="font-size: 1.5em;">最終スコア: <strong id="final-score-text"></strong> 点</p>
+    <div class="card" id="result-screen" style="display: none; text-align: center;">
+        <h2 style="font-size: 28px; margin-bottom: 16px;">Game Over</h2>
+        <p style="font-size: 17px; color: var(--apple-secondary);">Final Score</p>
+        <p style="font-size: 48px; font-weight: 700; color: var(--apple-text); margin-bottom: 40px;" id="final-score-text"></p>
         
-        <h3 style="margin-top: 30px; color: #00B900;">🏆 スコアランキング 🏆</h3>
+        <h3 style="font-size: 17px; color: var(--apple-secondary); margin-bottom: 16px;">Leaderboard</h3>
         <ul class="ranking-list" id="leaderboard-list"></ul>
 
-        <br>
-        <button class="btn" style="margin-top: 20px;" onclick="location.reload()">タイトルへ戻る</button>
+        <button class="btn" style="margin-top: 40px;" onclick="location.reload()">タイトルへ戻る</button>
     </div>
 
 <script>
-    const quizData = [
-        { name: "しろ", text: "きょうて数1の問題で呆れて言葉でないよ" },
-        { name: "いか", text: "具体的で現実的な地域医療への貢献ってなんスカ(ぴえん)" },
-        { name: "いながきごろう", text: "保健学科なんでいかないの？" },
-        { name: "ろいこ", text: "今日土田から聞いた話なんだと思って言ってた。" },
-        { name: "なんく", text: "教えただけだけど、それはバイアスがかかってる" },
-        { name: "おむれつ", text: "これはオムレツの15文字以上の発言サンプルです。" },
-        { name: "フリカフィ", text: "これはフリカフィの15文字以上の発言サンプルです。" },
-        { name: "もくへん", text: "これはもくへんの15文字以上の発言サンプルです。" },
-        { name: "土田", text: "これは土田の15文字以上の発言サンプルになります。" }
-    ];
-
-    let uniqueNames = [...new Set(quizData.map(q => q.name))].sort();
+    let quizData = [];
+    let uniqueNames = [];
     let currentQuestion = null;
     let questionText = "";
     let displayInterval = null;
@@ -185,18 +357,33 @@
     let score = 0;
     let qCount = 0;
     let combo = 0;
-    let startTime = 0;
-    let buzzerTime = 0;
     let playerName = "";
     const MAX_QUESTIONS = 7;
+    const REVEAL_SPEED = 350;
 
-    const nameListDiv = document.getElementById("name-list");
-    uniqueNames.forEach(name => {
-        const span = document.createElement("span");
-        span.className = "name-badge";
-        span.textContent = name;
-        nameListDiv.appendChild(span);
-    });
+    window.onload = async function() {
+        try {
+            const response = await fetch('quiz_data.json');
+            if (!response.ok) throw new Error("Network response was not ok");
+            quizData = await response.json();
+            
+            uniqueNames = [...new Set(quizData.map(q => q.name))].sort();
+            
+            const nameListDiv = document.getElementById("name-list");
+            uniqueNames.forEach(name => {
+                const span = document.createElement("span");
+                span.className = "name-badge";
+                span.textContent = name;
+                nameListDiv.appendChild(span);
+            });
+
+            document.getElementById("loading-text").style.display = "none";
+            document.getElementById("start-screen-content").style.display = "block";
+        } catch (error) {
+            document.getElementById("loading-text").innerHTML = "quiz_data.jsonの読み込みに失敗しました。<br>ローカルサーバー(Live Serverなど)で起動しているか確認してください。";
+            document.getElementById("loading-text").style.color = "var(--apple-red)";
+        }
+    };
 
     function checkInput() {
         const inputVal = document.getElementById("player-name-input").value.trim();
@@ -223,17 +410,22 @@
         
         qCount++;
         document.getElementById("question-count").textContent = qCount;
-        document.getElementById("result-message").textContent = "";
+        document.getElementById("result-message").innerHTML = "";
+        document.getElementById("result-message").className = "";
         document.getElementById("next-btn").style.display = "none";
         document.getElementById("choices-area").style.display = "none";
+        
+        const actionArea = document.getElementById("action-area");
+        actionArea.style.display = "block";
+        actionArea.style.height = "auto";
         document.getElementById("buzzer-btn").style.display = "inline-block";
         
+        document.getElementById("game-area").classList.remove("shake");
+
         currentQuestion = quizData[Math.floor(Math.random() * quizData.length)];
         questionText = currentQuestion.text;
         currentIndex = 0;
         document.getElementById("question-text").textContent = "";
-
-        startTime = Date.now();
         
         displayInterval = setInterval(() => {
             if (currentIndex < questionText.length) {
@@ -241,15 +433,14 @@
                 currentIndex++;
             } else {
                 clearInterval(displayInterval);
-                hitBuzzer(true);
+                hitBuzzer();
             }
-        }, 350);
+        }, REVEAL_SPEED);
     }
 
-    function hitBuzzer(auto = false) {
+    function hitBuzzer() {
         clearInterval(displayInterval);
-        buzzerTime = Date.now();
-        document.getElementById("buzzer-btn").style.display = "none";
+        document.getElementById("action-area").style.display = "none";
         showChoices();
     }
 
@@ -270,36 +461,75 @@
         });
     }
 
+    function createParticles() {
+        const colors = ['#34c759', '#0071e3', '#ff9500', '#ff2d55', '#5856d6'];
+        for (let i = 0; i < 40; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            document.body.appendChild(particle);
+
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.backgroundColor = color;
+
+            const startX = window.innerWidth / 2;
+            const startY = window.innerHeight / 2;
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 5 + Math.random() * 15;
+            const lifeTime = 600 + Math.random() * 400;
+
+            particle.style.left = startX + 'px';
+            particle.style.top = startY + 'px';
+
+            const animation = particle.animate([
+                { transform: `translate(0, 0) scale(1)`, opacity: 1 },
+                { transform: `translate(${Math.cos(angle) * velocity * 20}px, ${Math.sin(angle) * velocity * 20 + 100}px) scale(0)`, opacity: 0 }
+            ], {
+                duration: lifeTime,
+                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+            });
+
+            animation.onfinish = () => particle.remove();
+        }
+    }
+
     function checkAnswer(selectedName) {
         document.getElementById("choices-area").style.display = "none";
         const resultMsg = document.getElementById("result-message");
         
+        const unrevealedRatio = 1 - (currentIndex / questionText.length);
+        const timeRatio = Math.max(0, unrevealedRatio);
+
         if (selectedName === currentQuestion.name) {
             combo++;
-            let basePoint = 50;
+            createParticles();
             
-            let hiddenRatio = 1.0 - (currentIndex / questionText.length);
-            let speedBonus = Math.floor(hiddenRatio * 100); 
+            const basePoint = 100;
+            const speedBonus = Math.floor(timeRatio * 1000);
+            const comboBonus = (combo > 1) ? (combo * 150) : 0;
             
-            let comboBonus = (combo > 1) ? (combo * 10) : 0;
-
-            let points = basePoint + speedBonus + comboBonus;
+            const points = basePoint + speedBonus + comboBonus;
             score += points;
 
             document.getElementById("score").textContent = score;
             if (combo > 1) {
-                document.getElementById("combo-text").textContent = `(${combo}連チャン!)`;
+                document.getElementById("combo-text").textContent = `${combo} Combo!`;
             }
 
-            resultMsg.innerHTML = `正解！🎉<br>基本点:+${basePoint} 早押しボーナス:+${speedBonus} 連続ボーナス:+${comboBonus} (合計:+${points}点)<br>正答: ${currentQuestion.name}`;
-            resultMsg.style.color = "green";
+            resultMsg.className = "correct-text";
+            resultMsg.innerHTML = `Correct! +${points}<div class="score-detail">Base: ${basePoint} | Speed: ${speedBonus} | Combo: ${comboBonus}<br>Ans: ${currentQuestion.name}</div>`;
         } else {
             combo = 0;
-            score -= 100;
+            const basePenalty = 500;
+            const earlyGuessPenalty = Math.floor(timeRatio * 1500);
+            const totalPenalty = basePenalty + earlyGuessPenalty;
+            score -= totalPenalty;
+            
+            document.getElementById("game-area").classList.add("shake");
             document.getElementById("score").textContent = score;
             document.getElementById("combo-text").textContent = "";
-            resultMsg.textContent = `残念！❌ -100点... 正解は「${currentQuestion.name}」でした。`;
-            resultMsg.style.color = "red";
+            
+            resultMsg.className = "wrong-text";
+            resultMsg.innerHTML = `Wrong! -${totalPenalty}<div class="score-detail">Base: -${basePenalty} | Early Penalty: -${earlyGuessPenalty}<br>Ans: ${currentQuestion.name}</div>`;
         }
 
         document.getElementById("question-text").textContent = questionText;
@@ -312,7 +542,7 @@
         document.getElementById("result-screen").style.display = "block";
         document.getElementById("final-score-text").textContent = score;
 
-        let highScores = JSON.parse(localStorage.getItem("quizHighScores")) || [];
+        let highScores = JSON.parse(localStorage.getItem("appleQuizScores")) || [];
         
         let existingIndex = highScores.findIndex(entry => entry.name === playerName);
         if (existingIndex !== -1) {
@@ -324,13 +554,13 @@
         }
 
         highScores.sort((a, b) => b.score - a.score);
-        localStorage.setItem("quizHighScores", JSON.stringify(highScores));
+        localStorage.setItem("appleQuizScores", JSON.stringify(highScores));
 
         let leaderboardHtml = "";
-        highScores.slice(0, 10).forEach((entry, index) => {
-            let rank = index + 1;
-            let rankIcon = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : `${rank}.`;
-            leaderboardHtml += `<li><span>${rankIcon} ${entry.name}</span> <span>${entry.score} 点</span></li>`;
+        highScores.slice(0, 5).forEach((entry, index) => {
+            let rankClass = index === 0 ? "rank-1" : index === 1 ? "rank-2" : index === 2 ? "rank-3" : "";
+            let rankNum = index + 1;
+            leaderboardHtml += `<li class="${rankClass}"><span>${rankNum}. ${entry.name}</span> <span>${entry.score}</span></li>`;
         });
         document.getElementById("leaderboard-list").innerHTML = leaderboardHtml;
     }
