@@ -300,7 +300,7 @@
 </head>
 <body>
 
-    <h1>高IQ発話者選択クイズ</h1>
+    <h1>Quote Quiz</h1>
     
     <div class="stats" id="game-stats" style="display: none;">
         <div>Score: <span id="score">0</span> <span id="combo-text" class="combo"></span></div>
@@ -352,6 +352,7 @@
 
 <script>
     let quizData = [];
+    let shuffledQuizData = [];
     const fixedChoices = [
         "しろ", "いながきごろう", "いか", "ろいこ", 
         "なんく", "おむれつ", "フリカフィ", "もくへん", "土田"
@@ -365,6 +366,8 @@
     let combo = 0;
     let playerName = "";
     let buttonsDisabled = false;
+    let startTime = 0;
+    let buzzerTime = 0;
     const MAX_QUESTIONS = 7;
     const REVEAL_SPEED = 200;
 
@@ -407,6 +410,17 @@
         nextQuestion();
     }
 
+    function getNextQuestion() {
+        if (shuffledQuizData.length === 0) {
+            shuffledQuizData = [...quizData];
+            for (let i = shuffledQuizData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledQuizData[i], shuffledQuizData[j]] = [shuffledQuizData[j], shuffledQuizData[i]];
+            }
+        }
+        return shuffledQuizData.pop();
+    }
+
     function nextQuestion() {
         if (qCount >= MAX_QUESTIONS) {
             endGame();
@@ -427,10 +441,12 @@
         
         document.getElementById("game-area").classList.remove("shake");
 
-        currentQuestion = quizData[Math.floor(Math.random() * quizData.length)];
+        currentQuestion = getNextQuestion();
         questionText = currentQuestion.text;
         currentIndex = 0;
         document.getElementById("question-text").textContent = "";
+        
+        startTime = Date.now();
         
         displayInterval = setInterval(() => {
             if (currentIndex < questionText.length) {
@@ -444,6 +460,7 @@
     }
 
     function hitBuzzer() {
+        buzzerTime = Date.now();
         clearInterval(displayInterval);
         document.getElementById("action-area").style.display = "none";
         showChoices();
@@ -501,16 +518,15 @@
         document.getElementById("choices-area").style.display = "none";
         const resultMsg = document.getElementById("result-message");
         
-        const unrevealedRatio = 1 - (currentIndex / questionText.length);
-        const timeRatio = Math.max(0, unrevealedRatio);
+        const elapsedMs = buzzerTime - startTime;
 
         if (selectedName === currentQuestion.name) {
             combo++;
             createParticles();
             
             const basePoint = 200;
-            const speedBonus = Math.floor(timeRatio * 1500);
-            const comboBonus = (combo > 1) ? (combo * 200) : 0;
+            const speedBonus = Math.max(0, 1500 - Math.floor(elapsedMs * 0.3));
+            const comboBonus = (combo > 1) ? (combo * 100) : 0;
             
             const points = basePoint + speedBonus + comboBonus;
             score += points;
@@ -524,8 +540,8 @@
             resultMsg.innerHTML = `正解！ +${points}<div class="score-detail">基本点: ${basePoint} | 早押し: ${speedBonus} | コンボ: ${comboBonus}<br>正答: ${currentQuestion.name}</div>`;
         } else {
             combo = 0;
-            const basePenalty = 500;
-            const earlyGuessPenalty = Math.floor(timeRatio * 2000);
+            const basePenalty = 150;
+            const earlyGuessPenalty = Math.max(0, 350 - Math.floor(elapsedMs * 0.1));
             const totalPenalty = basePenalty + earlyGuessPenalty;
             score -= totalPenalty;
             
@@ -534,7 +550,7 @@
             document.getElementById("combo-text").textContent = "";
             
             resultMsg.className = "wrong-text";
-            resultMsg.innerHTML = `不正解... -${totalPenalty}<div class="score-detail">基本減点: -${basePenalty} | 勘押しペナルティ: -${earlyGuessPenalty}<br>正答: ${currentQuestion.name}</div>`;
+            resultMsg.innerHTML = `不正解... -${totalPenalty}<div class="score-detail">基本減点: -${basePenalty} | 勘押しペナ: -${earlyGuessPenalty}<br>正答: ${currentQuestion.name}</div>`;
         }
 
         document.getElementById("question-text").textContent = questionText;
